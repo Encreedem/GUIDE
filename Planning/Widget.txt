@@ -1,0 +1,46 @@
+Widget
+
+Description:
+A GUI element.
+
+Widget Types:
+- Container
+	- Dialogue
+	- Panel
+	- ScrollViewer
+	- TabViewer
+- Graphic
+	- Box
+	- Circle
+	- Line
+- Button
+- CheckBox
+- DropDownList
+- DropDownMenu
+- FileBrowser
+- Label
+- List
+- ProgressBar
+- RadioButton
+- ScrollBar
+- Slider
+- TextBox
+
+Basic Widget attributes:
+- ID
+- Absolute and relative position (x, y, absoluteX, absoluteY)*
+- width and height*
+- background and foreground color*
+- event handler
+* Means it can be changed via the attribute editor.
+
+User Interaction:
+- In a program:
+	Events get sent to the corresponding event handler.
+- In the editor:
+	See "Window Editor"
+
+API interaction:
+Widgets can be accessed via "Widgets.widgetID" by using a metatable to look for them.
+Attributes can be accessed and changed via the Widget itself.
+Widgets can be added by getting a container and calling its "addWidget" function.

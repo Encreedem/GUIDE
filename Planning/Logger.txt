@@ -1,0 +1,71 @@
+Logger
+
+Description:
+Supports logging for GUIDE and separately for its projects.
+
+>> File location <<
+/GUIDE
+	Log
+		GUIDE.log
+		TestProject1.log
+		DoorLock.log
+		CentralControl.log
+-- or --
+/GUIDE
+	Projects
+		TestProject1
+			Windows
+				...
+			TestProject1.log
+		DoorLock
+			Windows
+				...
+			DoorLock.log
+	GUIDE.log
+
+Preferred:
+2. option as it allows for greater modularity and doesn't clutter the "Log" folder as projects are getting added and deleted.
+
+>> Log Types <<
+- Info
+- Extended
+- Debug
+- Warning
+- Severe
+- Error
+
+>> Usage <<
+Logger:init("/GUIDE/Projects/TestProject1/TestProject1.log") -- Sets the path of the log file and creates/clears it.
+or Logger:setFilePath(path) -- is this necessary?
+log = Logger.log
+
+function testFunction()
+	log("info", "Something happened", "testFunction")
+	sleep(0.001)
+	log("warning", "Something bad happened!", "testFunction")
+	-- more logging...
+end
+
+Log-file output:
+Log-file initialized.
+[day, time ] type:    (source) Message
+[382, 10234] Info:    (testFunction) Something happened
+[382, 10236] WARNING: (testFunction) Something bad happened!
+[383, 00480] ERROR:   (Logger.log) No more tests available!
+
+>> Error on invalid call <<
+log("Something happened."):
+Error: (Logger.log) Type "Something happened." for parameter "type" is invalid!
+Make sure you called the function correctly:
+log(type, message, source)
+Available types:
+- Info
+- Extended
+- Debug
+- Warning
+- Severe
+- Error
+
+Logging before initializing:
+Error: Tried to log before setting the log-file path.
+Source: [source argument]

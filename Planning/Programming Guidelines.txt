@@ -1,0 +1,14 @@
+Programming Guidelines
+
+Element order
+	- Public before private
+	- Variables
+	- Properties
+	- private classes
+	- Functions
+	- main function
+Casing
+As GUIDE will be a framework with lots of APIs there should be following rule: private camelCasing and public CamelCasing
+
+Event design
+Each event will have a description/name, a sender (usually a widget) and a table of attributes. This allows inheritance of events.

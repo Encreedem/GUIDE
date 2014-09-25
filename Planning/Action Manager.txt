@@ -1,0 +1,26 @@
+Action Manager
+
+First idea:
+All reversible actions get registered in the ActionManager.
+Example of how it could work:
+
+ActionManager.registerAction("createWidget", { ID="newButton1" } )
+ActionManager.registerAction("renameWidget", { oldID="newButton1", newID="TestButton" } )
+ActionManager.registerAction("deleteWidget", { ID="TestButton" } )
+ActionManager.revertLastAction()
+ActionManager.redoLastAction()
+
+Necessary way of programming:
+- All actions and their parameters must be saved.
+- For each action there has to be a counter-action to reverse it.
+- Either in a separate table or in the same table as the action, there has to be a function which knows how to reverse a specific action.
+- Objects have to be moved to a temporary archive instead of actually being deleted.
+
+Possible way of doing this:
+- The InputHandler class sends everything to the GUIDE class.
+- The GUIDE class stores the requested action and executes it.
+- Should a revert be requested, then it will be sent to the GUIDE class again, which uses the information of the stored action to do so.
+
+Another idea:
+When the user requests a revert and he is in another window than where the last action was executed, he will be asked whether he actually wants to switch the current window.
+He can also use the settings to define whether a confirmation dialogue should appear or not.

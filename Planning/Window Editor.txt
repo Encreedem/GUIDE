@@ -1,0 +1,52 @@
+Window Editor
+
+Description:
+The main editor to add, change and remove widgets of a window.
+
+User interaction:
+- Click
+	- Empty pixel
+		- No widgets selected: no action
+		- One or more widgets: deselect all
+	- Widget: select widget
+- Right click
+	Open DropDownMenu with certain options, enabled depending on the selected area and widgets:
+	- widget ID [single widget] (maybe somehow highlighted)
+	- "Multiple widgets selected" [multiple widgets selected]
+	- Add [empty pixel]
+		- List of widgets, sorted by alphabet.
+	- Copy [single widget selected]
+	- Cut [empty pixel]
+	- Delete [one or more widgets selected]
+		- Maybe a confirmation dialogue which can be disable via the settings.
+	- Modify Attributes [one or more widgets selected]
+		- Modifiable attributes depend on the amount and type of the selected widgets.
+		- One widget: All available attributes.
+		- Multiple of the same type: Attributes like position and size are locked.
+		- Multiple of different types: Back- and foreground color might be the only available attributes.
+	- An empty line if there are "Custom" options available
+	- Custom: A widget can have a table called "RightClickOptions" which will be displayed in addition to the default options.
+		- Widget with modifiable text: "Edit Text"
+		- List/DropDownList: "Edit Items"
+		- TabViewer: "Add Tab"
+- Ctrl + click
+	- Empty pixel: no action
+	- Widget: toggle selection (multiple selections should be possible)
+- Drag
+	- Empty pixel: Draw selection box
+	- Widget
+		- Edge: Scale (prioritized over moving or scaling an unselected object)
+		- Otherwise: Move
+	- Multiple widgets selected: move all
+- Shortcut (Ctrl + key)
+	- ^A ... Select all widgets
+	- ^E ... Edit the selected objects' attributes (same functionality as in the DropDownList)
+	- ^Q ... Exit the program
+	- ^S ... Save window
+	- ^W ... Close Window Editor (ask to save if necessary)
+	- ^Z ... Revert last change (should work cumulatively)
+
+Features:
+Warn if one or more objects is not visible (same color as the background, moved outside the window, etc.)
+Revert changes (as mentioned above)
+Included text editor to edit widgets manually and display files.

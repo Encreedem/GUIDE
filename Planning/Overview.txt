@@ -1,0 +1,45 @@
+GUIDE - Overview
+
+Public APIs
+- Canvas (former "Buffer")
+- ExceptionHandler
+- File
+- InputHandler
+- Logger
+- OutputManager
+- Settings
+	- Language
+	- Color Theme
+	- Startup Project (if set, the project window will be skipped)
+	- Keyboard Layout
+- Widget
+
+Private APIs
+- ActionManager
+	Records all actions taken by the user. Is used to support the Ctrl+Z feature.
+- CustomWindows
+	- AttributeEditor
+	- ListEditor
+	- ProjectManager
+	- Setup
+	- WindowManager
+
+External programs
+- Testing tool
+- Log Viewer
+
+Other features
+- Dynamic window size/style.
+- Settings (case sensitivity?)
+- Color Theme
+- Localization
+- Project/Window Manager (?)
+- Alignment Lines
+
+Development goal/focus:
+Documentation, documentation, documentation!
+Testing, testing, testing!
+Simple and easy to understand usability of the editor as well as the APIs while keeping the flexibility of an advanced GUI builder.
+Design and functionality should be oriented towards Visual Studio. The window editor should be as empty as possible to give the user a "canvas"-feeling.
+As in WPF, the front- and back-end should be fairly independent of each other. Additionally widgets should be saved and displayed as a custom XML format.
+GUIDE should support reverting changes (Ctrl + Z).

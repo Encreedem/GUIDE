@@ -1,0 +1,48 @@
+File Manager
+
+Description:
+Supports management of files and a custom "data folder".
+
+>> Features <<
+- Clear
+- Rename
+- Remove
+- Save/Load
+- Save table into/Load table from separate files with a certain extension.
+- Choose file format (single line for high performance, ComputerCraft default format, maybe XML)
+
+
+>> File structure <<
+/GUIDE
+	Projects
+		TestProject1
+		DoorLock
+			Log
+			Windows
+		CentralControl
+	guide.cfg
+	guide.log
+
+>> Usage <<
+Windows = {
+	window1 = { ... };
+	window2 = { ... };
+	window3 = { ... };
+}
+
+Windows = FileManager:loadFromMultipleFiles("/", ".windows")
+FileManager:saveIntoMultipleFiles("/", Windows, ".window")
+
+
+Log example:
+
+newLog = File:new()
+newLog:setPath("/GUIDE/Projects/DoorLock/Log/DoorLock.log")
+newLog:save()
+-- or --
+newLog = File:create("/GUIDE/Projects/DoorLock/Log/DoorLock.log")
+	... which one is better? I think the second one as it is simpler and the first one is probably not needed.
+
+LogFile = File:open("/GUIDE/Projects/DoorLock/Log/DoorLock.log")
+LogFile:clear()
+LogFile:append(see "Logger" for more info)

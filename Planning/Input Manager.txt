@@ -1,0 +1,22 @@
+Input Manager
+
+Description:
+Handles all mouse and key inputs of the user and sends them to the GUIDE core.
+It sends each event to the core, except for shortcuts.
+When the user presses Ctrl then the InputManager will start a countdown. If the user presses a key or clicks within before the timer runs out, the action will be interpreted as a command and sent to the GUIDE core.
+The InputManager runs parallel to the GUIDE core, resulting in the GUI not freezing when an action takes some time. Some actions might need to be restricted while an action caused by the user is still running.
+High performance is a priority to ensure the recording of every input.
+
+Idea how it could actually work:
+- Create an action table.
+	- Event (mouse, key, redstone, ...)
+	- Type (left click, right click, certain key, ...)
+	- Modifiers (Shift, Ctrl, Alt)
+- Get an event
+- If it's a modifier, start a countdown.
+- If it's a mouse or key/char input, add it to the action immediately.
+	- If the countdown is running, add all modifiers to the action.
+	- Send the action to the GUIDE core.
+
+Possible problems:
+Recording of characters to ensure compatibility between all keyboard layouts.
