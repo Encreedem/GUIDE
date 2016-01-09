@@ -1,0 +1,29 @@
+-- File Manager Tester
+local requiredAPIs = { "FileManager" }
+
+local function init()
+	local initResult = false
+	
+	if os.loadAPI("enCore") then
+		initResult = enCore.init(requiredAPIs)
+	end
+	
+	return initResult
+end
+
+local function main()
+	--local testFile = { 1, 2, {3, 4, 5} }
+	--FileManager.saveTable(testFile, "testFile.txt")
+end
+
+local function terminate()
+	enCore.terminate()
+end
+
+if init() then
+	main()
+else
+	print("File Manager initialization failed!")
+end
+
+terminate()

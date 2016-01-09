@@ -1,0 +1,41 @@
+-- Encreedem's core file
+
+local loadedAPIs = {} -- List of APIs loaded during the initialization.
+
+--[[ Initializes enCore, loads all specified APIs and returns whether the
+initialization was successful.
+[table] [optional] apiList: A table of strings containing all APIs that should
+	be loaded.
+]]
+function init(apiList)
+	local result = true
+	
+	if apiList then
+		for _, apiName in pairs(apiList) do
+			if not _G[apiName] then
+				if not os.loadAPI(apiName) then
+					return false
+				end
+			end
+			
+			loadedAPIs[#loadedAPIs + 1] = apiName
+		end
+	end
+	
+	return true
+end
+
+-- Retuns whether the specified string is nil or empty.
+function stringEmpty(text)
+	assert(type(text) == "string")
+	return (text == nil or text == "")
+end
+
+-- Unloads all APIs loaded during the initialization.
+function terminate()
+	for _, apiName in pairs(loadedAPIs) do
+		if _G[apiName] then
+			os.unloadAPI(apiName)
+		end
+	end
+end

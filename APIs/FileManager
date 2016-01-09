@@ -1,0 +1,96 @@
+ --[[ Author: Encreedem
+Extends the fs library by providing functions to save and load tables in
+different formats.
+Currently supported file types:
+- serialized: The same format as "textutils.serialize()".
+
+Planned supported files:
+- serialized
+- config
+- XML
+ ]]
+
+-- The file handler class.
+local File = {
+	append = function(text) end;
+	
+	write = function(text) end;
+
+	save = function(fileName) end;
+}
+
+-- Public Functions
+
+--[[ Reads and unpacks the file into a table and returns it.
+[string or table] path: The path to the file (or its parent folder if 
+	loadByExtension" is specified)
+[string] [optional] fileType: The type of the file. See "supported file types"
+	in the header for more info. Uses "serialized" if empty.
+[boolean] [optional] loadByExtension: If specified then it loads all files
+	with the specified extension and returns them in a single table.
+]]
+function loadTable(path, fileType, loadByExtension)
+	if type(path) == "table" then
+		path = getPathString(path)
+	end
+	
+	assert(type(fileType) == "string")
+	
+	if enCore.stringEmpty(fileType) then
+		fileType = "serialized"
+	end
+	
+	local file = fs.open(path, "r")
+	
+	if (fileType == "serialized") then
+		
+	end
+end
+
+--[[ Saves the specified table into one or multiple files.
+[table] tableToSave: The table that should be saved.
+[string or table] path: The path including the name of the file (or folder if "saveByExtension" is specified.
+[string] [optional] fileType: The file type that specifies how the file will be formatted.
+[boolean] [optional] saveByExtension:
+	true: Each element will be saved into it's own file with the specified extension.
+		"path" is the folder where the files should be saved.
+	false or nil: The table will be  saved into a single file.
+		"path" is the name of the file.
+]]
+function saveTable(tableToSave, path, fileType, saveByExtension)
+	if type(path) == "table" then
+		path = getPathString(path)
+	end
+	
+	fileType = enCore.stringEmpty(fileType) and "serialized" or string.lower(fileType)
+	fileText = nil
+	
+	if (fileType == "serialized") then
+		fileText = textutils.serialize(tableToSave)
+	elseif (fileType == "xml") then
+		error("XML is not yet supported")
+	elseif (fileType == "config" or fileType == "cfg") then
+		error("Config is not yet supported")
+	else
+		error("Can't save file! Unknown file type \"" .. tostring(fileType) .. "\"!")
+	end
+	
+	local file = fs.open(path, "w")
+	file.write(fileText)
+	file.close()
+end
+
+-- Private Functions
+
+-- Takes a table of strings and combines it into a single string.
+local function getPathString(pathTable)
+	assert(type(pathTable) == "table")
+	
+	local ret = ""
+	
+	for _, value in pairs(pathTable) do
+		ret = fs.combine(ret, value)
+	end
+	
+	return ret
+end
