@@ -2,49 +2,145 @@
 Extends the fs library by providing functions to save and load tables in
 different formats.
 Currently supported file types:
-- serialized: The same format as "textutils.serialize()".
-
-Planned supported files:
-- serialized
-- config
-- XML
+- serialized:	Format used by "textutils.serialized()".
+- cfg (config):	Simple config-format. Each line contains [key]=[value].
  ]]
-
--- The file handler class.
-local File = {
-	append = function(text) end;
+ 
+ -- Classes
+ 
+ -- Contains all supported file types and the functions to convert them.
+ local FileTypes = {
+	-- Format used by "textutils.serialized()".
+	serialized = {
+		-- Converts the given table into a serialized string and returns it.
+		convertToFile = function(toConvert)
+			assert(type(toConvert) == "table")
+			return textutils.serialize(toConvert)
+		end;
+		
+		-- Converts the given string into a talbe and returns it.
+		convertToTable = function(toConvert)
+			assert(type(toConvert) == "string")
+			return textutils.unserialize(toConvert)
+		end;
+	};
 	
-	write = function(text) end;
+	-- Simple config-format. Each line contains [key]=[value].
+	cfg = {
+		convertToFile = function(toConvert)
+			assert(type(toConvert) == "table")
+			
+			local fileText = ""
+			local delimiter = ""
+			
+			for key, value in pairs(toConvert) do
+				local line = tostring(key) .. "=" .. tostring(value)
+				fileText = fileText .. delimiter .. line
+				delimiter = "\n"
+			end
+			
+			return fileText
+		end;
+		
+		convertToTable = function(toConvert)
+			assert(type(toConvert) == "string")
+			local ret = {}
+			
+			for _, line in pairs(enCore.stringToLines(toConvert)) do
+				local key, value = string.match(line, "([^=]+)=(.+)")
+				ret[key] = value
+			end
+			
+			return ret;
+		end;
+	};
+ }
+ 
+-- Functions
 
-	save = function(fileName) end;
-}
+-- Returns a table of strings, containing all files with the specified extension.
+function findByExtension(parentFolder, extension)
+	assert(fs.exists(parentFolder))
+	assert(fs.isDir(parentFolder))
+	extension = toExtension(extension)
+	
+	local ret = {}
+	
+	for _, value in pairs(fs.list(parentFolder)) do
+		local fileName = string.match(value, "^(.+)%" .. extension)
+		
+		if (fileName) then
+			ret[#ret+1] = fileName
+		end
+	end
+	
+	return ret
+end
 
--- Public Functions
+-- Opens the specified file and returns its content as a string.
+function loadFile(path)
+	assert(fs.exists(path) and not fs.isDir(path))
+	local file = fs.open(path, "r")
+	local fileText = file.readAll()
+	file.close()
+	
+	return fileText
+end
 
---[[ Reads and unpacks the file into a table and returns it.
+--[[ Reads and unpacks one or multiple files into a table and returns it.
 [string or table] path: The path to the file (or its parent folder if 
 	loadByExtension" is specified)
 [string] [optional] fileType: The type of the file. See "supported file types"
 	in the header for more info. Uses "serialized" if empty.
 [boolean] [optional] loadByExtension: If specified then it loads all files
 	with the specified extension and returns them in a single table.
+
+e.g. loadTable("DoorLock/Users", "serialized", "user")
+... loads all files in the "DoorLock/Users" folder with the extension ".user"
+and returns them as a single table.
 ]]
 function loadTable(path, fileType, loadByExtension)
+	-- Validation
 	if type(path) == "table" then
 		path = getPathString(path)
 	end
 	
-	assert(type(fileType) == "string")
+	assert(fs.exists(path), "File \"" .. tostring(path) .. "\" doesn't exist.")
 	
 	if enCore.stringEmpty(fileType) then
 		fileType = "serialized"
 	end
-	
-	local file = fs.open(path, "r")
-	
-	if (fileType == "serialized") then
-		
+	assert(fileTypeValid(fileType))
+	if loadByExtension then
+		assert(fs.isDir(path))
+	else
+		assert(not fs.isDir(path))
 	end
+	
+	-- Code
+	local ret = {}
+	
+	if loadByExtension then
+		local fileList = findByExtension(path, loadByExtension)
+		
+		for _, value in pairs(fileList) do
+			local filePath = fs.combine(path, value)
+			local fileText = loadFile(filePath)
+			ret[value] = FileTypes[fileType].convertToTable(fileText)
+		end
+	else
+		local fileText = loadFile(path)
+		ret = FileTypes[fileType].convertToTable(fileText)
+	end
+	
+	return ret
+end
+
+-- Saves the given file into the specified path.
+function saveFile(path, text)
+	local file = fs.open(path, "w")
+	file.write(text)
+	file.close()
 end
 
 --[[ Saves the specified table into one or multiple files.
@@ -58,32 +154,45 @@ end
 		"path" is the name of the file.
 ]]
 function saveTable(tableToSave, path, fileType, saveByExtension)
+	-- Validation
 	if type(path) == "table" then
 		path = getPathString(path)
 	end
 	
 	fileType = enCore.stringEmpty(fileType) and "serialized" or string.lower(fileType)
-	fileText = nil
+	assert(fileTypeValid(fileType))
 	
-	if (fileType == "serialized") then
-		fileText = textutils.serialize(tableToSave)
-	elseif (fileType == "xml") then
-		error("XML is not yet supported")
-	elseif (fileType == "config" or fileType == "cfg") then
-		error("Config is not yet supported")
+	-- If "saveByExtension" is not nil then "path" has to be a folder.
+	assert((saveByExtension and fs.isDir(path)) or not fs.isDir(path))
+	
+	-- Code
+	if saveByExtension then
+		for key, value in pairs(tableToSave) do
+			local filePath = fs.combine(path, key .. toExtension(saveByExtension))
+			local fileText = FileTypes[fileType].convertToFile(value)
+			saveFile(filePath, fileText)
+		end
 	else
-		error("Can't save file! Unknown file type \"" .. tostring(fileType) .. "\"!")
+		local fileText = FileTypes[fileType].convertToFile(tableToSave)
+		saveFile(path, fileText)
 	end
-	
-	local file = fs.open(path, "w")
-	file.write(fileText)
-	file.close()
 end
 
--- Private Functions
+-- "Private" Functions
 
--- Takes a table of strings and combines it into a single string.
-local function getPathString(pathTable)
+-- Returns whether the specified file type is supported by the FileManager.
+function fileTypeValid(fileType)
+	assert(type(fileType) == "string")
+	
+	for key, value in pairs(FileTypes) do
+		if (fileType == key) then return true end
+	end
+	
+	return false
+end
+
+-- Takes a table of strings and combines it into a path string.
+function getPathString(pathTable)
 	assert(type(pathTable) == "table")
 	
 	local ret = ""
@@ -93,4 +202,13 @@ local function getPathString(pathTable)
 	end
 	
 	return ret
+end
+
+-- Adds "." to the beginning of the string (unless it's already there) and returns it.
+function toExtension(str)
+	if (string.char(str) ~= '.') then
+		str = "." .. str
+	end
+	
+	return str
 end

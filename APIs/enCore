@@ -12,11 +12,11 @@ function init(apiList)
 	
 	if apiList then
 		for _, apiName in pairs(apiList) do
-			if not _G[apiName] then
+			--if not _G[apiName] then
 				if not os.loadAPI(apiName) then
 					return false
 				end
-			end
+			--end
 			
 			loadedAPIs[#loadedAPIs + 1] = apiName
 		end
@@ -27,8 +27,18 @@ end
 
 -- Retuns whether the specified string is nil or empty.
 function stringEmpty(text)
-	assert(type(text) == "string")
 	return (text == nil or text == "")
+end
+
+-- Puts each line inside the given string into a table and returns it.
+function stringToLines(str)
+	local ret = {}
+	
+	for line in string.gmatch(str, "[^\n\r]+") do
+		ret[#ret + 1] = line
+	end
+	
+	return ret
 end
 
 -- Unloads all APIs loaded during the initialization.

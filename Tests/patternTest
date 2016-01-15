@@ -1,0 +1,31 @@
+local requiredAPIs = { "FileManager" }
+
+local function init()
+	if os.loadAPI("enCore") then
+		if not enCore.init(requiredAPIs) then return false end
+	else
+		return false
+	end
+	
+	return true
+end
+
+local function main()
+	local fileText = FileManager.loadFile("testPatternFile.txt")
+	
+	for _, line in pairs(enCore.stringToLines(fileText)) do
+		print("\"" .. line .. "\"")
+	end
+end
+
+local function terminate()
+	if enCore then enCore.terminate() end
+end
+
+if init() then
+	main()
+else
+	print("Initialization failed!")
+end
+
+terminate()
