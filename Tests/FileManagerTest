@@ -1,7 +1,32 @@
 -- File Manager Tester
+--[[ Tests required:
+loadTable
+]]
 local requiredAPIs = { "FileManager" }
 
-local function init()
+local testTable1 = {
+	folder1 = {
+		"file1-1";
+		"file1-2";
+	};
+	folder2 = {
+		"file2-1";
+		"file2-2";
+	};
+}
+
+local testConfig = {
+	option1 = "option1";
+	option2 = "option2";
+	option3 = "option3";
+}
+
+local invalidTestConfig = {
+	option1 = "option1";
+	option2 = { 1, 2, 3 };
+}
+
+local function init()	
 	local initResult = false
 	
 	if os.loadAPI("enCore") then
@@ -12,8 +37,7 @@ local function init()
 end
 
 local function main()
-	--local testFile = { 1, 2, {3, 4, 5} }
-	--FileManager.saveTable(testFile, "testFile.txt")
+	
 end
 
 local function terminate()

@@ -1,0 +1,34 @@
+local requiredAPIs = { "Logger" }
+
+local function init()
+	local initResult = false
+	
+	if os.loadAPI("enCore") then
+		initResult = enCore.init(requiredAPIs)
+	end
+	
+	return initResult
+end
+
+local function main()
+	local log = Logger.new("logFile.log", true)
+	log.includeTime = true
+	log.twentyFourHour = true
+	
+	log("Some profound text goes here.")
+	sleep(0.5)
+	log("Ok, this is actually just a test")
+end
+
+local function terminate()
+	enCore.terminate()
+	os.unloadAPI("enCore")
+end
+
+if init() then
+	main()
+else
+	print("Initialization failed!")
+end
+
+terminate()

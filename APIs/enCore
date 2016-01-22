@@ -3,7 +3,9 @@
 local loadedAPIs = {} -- List of APIs loaded during the initialization.
 
 --[[ Initializes enCore, loads all specified APIs and returns whether the
-initialization was successful.
+initialization was successful. Also loads any further required APIs. (e.g. if
+the Logger API is loaded then it will automatically load the FileManager API.)
+
 [table] [optional] apiList: A table of strings containing all APIs that should
 	be loaded.
 ]]
@@ -12,11 +14,19 @@ function init(apiList)
 	
 	if apiList then
 		for _, apiName in pairs(apiList) do
-			--if not _G[apiName] then
-				if not os.loadAPI(apiName) then
+			if not _G[apiName] then
+				if os.loadAPI(apiName) then
+					-- Check whether the loaded API has further requirements
+					-- and load them.
+					local requiredAPIs = _G[apiName].requiredAPIs
+					
+					if (requiredAPIs) then
+						init(requiredAPIs)
+					end
+				else
 					return false
 				end
-			--end
+			end
 			
 			loadedAPIs[#loadedAPIs + 1] = apiName
 		end

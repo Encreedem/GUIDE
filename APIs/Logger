@@ -1,0 +1,67 @@
+--[[ Author: Encreedem
+The Logger class allows you to create a handler which you can use log events
+into a specified file.
+
+Example usage (more details at the specified functions):
+-- Create a file and get its handler. If it already exists, clear its content.
+local log = Logger.new("/LogResults/example.log", true)
+-- Automatically include the time of the logging.
+log.includeTime = true
+-- use 24 hour system or not
+log.twentyFourHour = true
+-- Log something
+log.log("Some event results go here...")
+-- or...
+log("This works too!")
+]]
+
+requiredAPIs = { "FileManager" }
+
+-- Logger class
+Logger = {
+	-- Variables
+	includeTime = false;
+	path = "";
+	twentyFourHour = false;
+	
+	-- Functions
+	log = function(self, message)
+		-- If this function is called via "Logger.log()" then it uses the
+		-- "self" parameter as its path.
+		local logPath = type(self) == "string" and self or self.path
+		
+		if self.includeTime then
+			message = string.format("[%d, %s] %s", os.day(), textutils.formatTime(os.time(), self.twentyFourHour), tostring(message))
+		end
+		
+		FileManager.append(logPath, tostring(message) .. "\n")
+	end;
+}
+
+-- Allows the user to call Logger.log() via the API. (Otherwise he'd have to call Logger.Logger.log())
+log = Logger.log
+
+--[[ Creates a new instance of the logger and returns its hanler.
+[string] path: The path of the log file.
+[boolean] clearFile: Determines whether the file should be cleared.
+]]
+new = function(path, clearFile)
+	path = type(path) == "string" and path or ""
+	
+	-- Validation
+	if (FileManager.isValidFile(path)) then
+		if clearFile then
+			FileManager.clearFile(path)
+		end
+	elseif (FileManager.isValidDir(path)) then
+		error("Can't create log file. The specified path is a folder:\n\"" .. path .. "\"")
+	else
+		FileManager.createFile(path)
+	end
+	
+	-- Code
+	local newLogger = { path=path }
+	setmetatable(newLogger, { __index=Logger, __call=Logger.log } )
+	
+	return newLogger
+end

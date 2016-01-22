@@ -58,6 +58,44 @@ Currently supported file types:
  
 -- Functions
 
+-- Adds the given text to the specified file.
+function append(path, text)
+	path = getPathString(path)
+	local mode = "a"
+	
+	-- Validation
+	if fs.exists(path) and fs.isDir(path) then
+		error("Cannot append text to \"" .. path .. "\" because it is a folder!")
+	end
+	
+	if not isValidFile(path) then mode = "w" end
+	
+	-- Code
+	local file = fs.open(path, mode)
+	file.write(text)
+	file.close()
+end
+
+-- Clears the content of the given file.
+function clearFile(path)
+	path = getPathString(path)
+	
+	if isValidFile(path) then
+		local file = fs.open(path, "w")
+		file.close()
+	end
+end
+
+-- Creates the given file but doesn't return its handle.
+function createFile(path)
+	path = getPathString(path)
+	
+	if not fs.exists(path) then
+		local file = fs.open(path, "w")
+		file.close()
+	end
+end
+
 -- Returns a table of strings, containing all files with the specified extension.
 function findByExtension(parentFolder, extension)
 	assert(fs.exists(parentFolder))
@@ -75,6 +113,20 @@ function findByExtension(parentFolder, extension)
 	end
 	
 	return ret
+end
+
+-- Returns whether the path refers to an existing folder.
+function isValidDir(path)
+	path = getPathString(path)
+	assert(type(path) == "string")
+	return (fs.exists(path) and fs.isDir(path))
+end
+
+-- Returns whether the path refers to an existing file.
+function isValidFile(path)
+	path = getPathString(path)
+	assert(type(path) == "string")
+	return (fs.exists(path) and not fs.isDir(path))
 end
 
 -- Opens the specified file and returns its content as a string.
@@ -136,6 +188,23 @@ function loadTable(path, fileType, loadByExtension)
 	return ret
 end
 
+-- Removes the given file.
+function deleteFile(path)
+	path = getPathString(path)
+	fs.delete(path)
+end
+
+-- Renames the given file.
+-- "newName" only needs the new name, not the whole path.
+function renameFile(path, newName)
+	path = getPathString(path)
+	assert(type(newName) == "string")
+	assert(isValidFile(path))
+	
+	local newPath = fs.combine(fs.getDir(path), newName)
+	fs.move(path, newPath)
+end
+
 -- Saves the given file into the specified path.
 function saveFile(path, text)
 	local file = fs.open(path, "w")
@@ -193,6 +262,8 @@ end
 
 -- Takes a table of strings and combines it into a path string.
 function getPathString(pathTable)
+	if (type(pathTable) == "string") then return pathTable end
+	
 	assert(type(pathTable) == "table")
 	
 	local ret = ""
